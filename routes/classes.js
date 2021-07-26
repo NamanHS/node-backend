@@ -10,8 +10,12 @@ router.get('/',(req,res)=>{
         else{
             let mysql_query = 'select * from classes'
             connection.query(mysql_query,(err,result)=>{
+                let output
                 if(err){
-                    res.send('error')
+                    output = {
+                        msg: err
+                    }
+                    res.send(output)
                 }
                 else{
                     res.send(result)

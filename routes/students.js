@@ -4,16 +4,24 @@ const router = express.Router()
 //[read] fetch all students
 router.get('/',(req,res)=>{
     pool.getConnection((err,connection)=>{
+        let output;
         if(err){
-            res.status(500).send('Internal Server Error')
+            output = {
+                msg: "error"
+            }
+            res.status(500).send(output)
         }
         else{
-            let mysql_query = 'select * from students'
+            let mysql_query = 'select studentId,firstName,lastName from students'
             connection.query(mysql_query,(err,result)=>{
                 if(err){
-                    res.send('error')
+                    output = {
+                        msg: "error"
+                    }
+                    res.send(output)
                 }
                 else{
+                    console.log('hey')
                     res.send(result)
                 }
                 connection.release()
@@ -46,10 +54,9 @@ router.get('/:id',(req,res)=>{
 
 //[create] insert one student
 router.post('/',(req,res)=>{
-
     let joiResult = validateSchema(req.body)
     if(joiResult.error) return res.status(400).send(joiResult.error.details[0].message) //object schema not valid
-    
+
     pool.getConnection((err,connection)=>{
         if(err){
             res.status(500).send('Internal Server Error')
@@ -57,15 +64,32 @@ router.post('/',(req,res)=>{
             let student = req.body
             let sql_query = 'insert into students set ?'
             connection.query(sql_query,[student],(err,result)=>{
+                let output;
                 if(err){
-                    if(err.errno === 1452) res.send('Class with given Id does not exist') // foreign key cannot reference primary key
-                    else res.send('error')
+                    if(err.errno === 1452){   
+                        output = {
+                        msg: 'Class with given Id does not exist'// foreign key cannot reference primary key
+                         }
+                        res.send(output)   
+                    }
+                    else {
+                        output = {
+                            msg: 'error'
+                        }
+                        res.send(output)
+                    }
                 }
                 else{
                     if(result.affectedRows === 0){
-                        res.send('student not added')
+                        output = {
+                            msg: 'student not added'
+                        }
+                        res.send(output)
                     }else{
-                        res.send('student added')
+                        output = {
+                            msg: 'Student Added!'
+                        }
+                        res.send(output)
                     }
                 }
                 connection.release()
@@ -80,6 +104,7 @@ router.put('/:id',(req,res)=>{
     if(joiResult.error) return res.status(400).send(joiResult.error.details[0].message) //object schema not valid
 
     pool.getConnection((err,connection)=>{
+        let output;
         if(err){
             res.status(500).send('Internal Server Error')
         }
@@ -95,14 +120,23 @@ router.put('/:id',(req,res)=>{
             
             connection.query(sql_query,[firstName,lastName,phoneNumber,emailId,classId,studentId],(err,result)=>{
                 if(err){
-                    res.send('error')
+                    output = {
+                        msg : 'error'
+                    }
+                    res.send(output)
                 }
                 else{
                     if(result.affectedRows === 0){
-                        res.status(404).send('student with given id not found')
+                        output = {
+                            msg: 'student with given id not found'
+                        }
+                        res.status(404).send(output)
                     }
                     else{
-                        res.send('Student details updated')
+                        output = {
+                            msg: 'Student Details Updated!'
+                        }
+                        res.send(output)
                     }
                 }
                 connection.release()
@@ -113,23 +147,37 @@ router.put('/:id',(req,res)=>{
 
 //[delete] delete one student by studentId
 router.delete('/:id',(req,res)=>{
+    console.log('dddd')
+    let output;
     pool.getConnection((err,connection)=>{
         if(err){
-            res.status(500).send('Internal Server Error')
+            output = {
+                msg: 'Internal Server Error'
+            }
+            res.status(500).send(output)
         }
         else{
             let id = req.params.id
             let mysql_query = 'delete from students where studentId = ?'
             connection.query(mysql_query,[id],(err,result)=>{
                 if(err){
-                    res.send('error')
+                    output = {
+                        msg: 'error'
+                    }
+                    res.send(err)
                 }
                 else{
                     if(result.affectedRows === 0){
-                        res.send('Student with given id does not exist')
+                        output = {
+                            msg: 'Student with given id does not exist'
+                        }
+                        res.status(400).send(output)
                     }
                     else{
-                        res.send('student deleted')
+                        output = {
+                            msg: 'student deleted'
+                        }
+                        res.send(output)
                     }
                 }
                 connection.release()
