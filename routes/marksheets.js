@@ -19,7 +19,7 @@ router.get('/student/:studentId',(req,res)=>{
                 
                 if(result.length > 0){
 
-                    mysql_query = 'select m.marksheetId, m.classId , c.className, m.studentId as rollNumber, s.firstName, s.lastName, m.marks from marksheets m left join students s on m.studentId = s.studentId join classes c on m.classId = c.classId AND m.studentId = ?'
+                    mysql_query = 'select m.marksheetId, m.classId , c.className, m.studentId, s.firstName, s.lastName, m.marks from marksheets m left join students s on m.studentId = s.studentId join classes c on m.classId = c.classId AND m.studentId = ? order by s.studentId'
                     
                     connection.query(mysql_query,[studentId],(err,result)=>{
                         if(err){
@@ -47,7 +47,7 @@ router.get('/student/:studentId',(req,res)=>{
                 }
                 else{
                     output = {
-                        msg: 'Student with given Roll Number not found'
+                        msg: 'Student with given Student ID not found'
                     }
                     res.status(404).send(output)
                     connection.release()
@@ -77,7 +77,7 @@ router.get('/class/:classId',(req,res)=>{
 
                 if(result.length > 0){
 
-                    mysql_query = 'select m.marksheetId, m.classId , c.className, m.studentId as rollNumber, s.firstName, s.lastName, m.marks from marksheets m left join students s on m.studentId = s.studentId join classes c on m.classId = c.classId AND m.classId = ?'
+                    mysql_query = 'select m.marksheetId, m.classId , c.className, m.studentId , s.firstName, s.lastName, m.marks from marksheets m left join students s on m.studentId = s.studentId join classes c on m.classId = c.classId AND m.classId = ? order by s.studentId'
                     
                     connection.query(mysql_query,[classId],(err,result)=>{
                         if(err){
@@ -146,13 +146,13 @@ router.post('/',(req,res)=>{
                         if(err){
                             if(err.code === 'ER_DUP_ENTRY'){
                                 output = {
-                                    msg: `Result for Roll Number ${req.body.studentId} already entered`
+                                    msg: `Result for Student ID ${req.body.studentId} already entered`
                                 }
                                 res.send(output)
                             } 
                             else if(err.errno === 1452){
                                 output = {
-                                    msg: `No student with given Roll Number ${req.body.studentId} exist`
+                                    msg: `No student with given Student ID : ${req.body.studentId} exists`
                                 }
                                 res.send(output) // foreign key cannot ref primary key
                             } 
