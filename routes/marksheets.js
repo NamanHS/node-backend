@@ -4,8 +4,12 @@ const router = express.Router()
 //[read] read marksheet of given studentId
 router.get('/student/:studentId',(req,res)=>{
     pool.getConnection((err,connection)=>{
+        let output;
         if(err){
-            res.status(500).send('Internal Server Error')
+            output = {
+                msg: 'Internal Server Error'
+            }
+            res.status(500).send(output)
         }
         else{
             let studentId = req.params.studentId
@@ -19,7 +23,10 @@ router.get('/student/:studentId',(req,res)=>{
                     
                     connection.query(mysql_query,[studentId],(err,result)=>{
                         if(err){
-                            res.send('error')
+                            output = {
+                                msg: 'error'
+                            }
+                            res.send(output)
                             console.log(err)
                         }
                         else{
@@ -29,14 +36,20 @@ router.get('/student/:studentId',(req,res)=>{
                                 res.send(result)
                             }
                             else{
-                                res.send('result not available')
+                                output = {
+                                    msg: 'result not available'
+                                }
+                                res.send(output)
                             }
                         }
                         connection.release()
                     })
                 }
                 else{
-                    res.status(404).send('Student with given Roll Number not found')
+                    output = {
+                        msg: 'Student with given Roll Number not found'
+                    }
+                    res.status(404).send(output)
                     connection.release()
                 }
             })
@@ -48,14 +61,19 @@ router.get('/student/:studentId',(req,res)=>{
 //[read] read marksheet of given classId
 router.get('/class/:classId',(req,res)=>{
     pool.getConnection((err,connection)=>{
+        let output;
         if(err){
-            res.status(500).send('Internal Server Error')
+            output = {
+                msg: 'Internal Server Error'
+            }
+            res.status(500).send(output)
         }
         else{
             let classId = req.params.classId
             let mysql_query = 'select className from classes where classId = ?'
 
             connection.query(mysql_query,[classId],(err,result)=>{
+                
 
                 if(result.length > 0){
 
@@ -63,7 +81,10 @@ router.get('/class/:classId',(req,res)=>{
                     
                     connection.query(mysql_query,[classId],(err,result)=>{
                         if(err){
-                            res.send('error')
+                            output = {
+                                msg: 'error'
+                            }
+                            res.send(output)
                             console.log(err)
                         }
                         else{
@@ -72,13 +93,19 @@ router.get('/class/:classId',(req,res)=>{
                                 res.send(result)
                             }
                             else{
-                                res.send('result not available')
+                                output = {
+                                    msg: 'result not available'
+                                }
+                                res.send(output)
                             }
                         }
                         connection.release()
                     })
                 }else{
-                    res.status(404).send('Class with given id not found')
+                    output = {
+                        msg: 'Class with given id not found'
+                    }
+                    res.status(404).send(output)
                     connection.release()
                 }
             })
@@ -89,13 +116,21 @@ router.get('/class/:classId',(req,res)=>{
 
 //[create] insert marksheet
 router.post('/',(req,res)=>{
-    
+    let output;
     let joiResult = validateSchema(req.body)
-    if(joiResult.error) return res.status(400).send(joiResult.error.details[0].message) //object schema not valid
+    if(joiResult.error){
+        output = {
+            msg: joiResult.error.details[0].message  //object schema not valid
+        }
+        return res.status(400).send(output)
+    } 
     
     pool.getConnection((err,connection)=>{
         if(err){
-            res.status(500).send('Internal Server Error')
+            output = {
+                msg: 'Internal Server Error'
+            }
+            res.status(500).send(output)
         }
         else{      
             let mysql_query = 'select firstName from students where studentId = ? AND classId = ?'
@@ -109,16 +144,37 @@ router.post('/',(req,res)=>{
                     
                     connection.query(mysql_query,[req.body.classId,req.body.studentId,marks],(err,result)=>{
                         if(err){
-                            if(err.code === 'ER_DUP_ENTRY') res.send(`Result for Roll Number ${req.body.studentId} already entered`)
-                            else if(err.errno === 1452) res.send(`No student with given Roll Number ${req.body.studentId} exist`) // foreign key cannot ref primary key
-                            else res.send('error')
+                            if(err.code === 'ER_DUP_ENTRY'){
+                                output = {
+                                    msg: `Result for Roll Number ${req.body.studentId} already entered`
+                                }
+                                res.send(output)
+                            } 
+                            else if(err.errno === 1452){
+                                output = {
+                                    msg: `No student with given Roll Number ${req.body.studentId} exist`
+                                }
+                                res.send(output) // foreign key cannot ref primary key
+                            } 
+                            else{
+                                output = {
+                                    msg: 'error'
+                                }
+                                res.send(output)
+                            } 
                         }
                         else{
                             if(result.affectedRows === 1){
-                                res.send('Marks entered')
+                                output = {
+                                    msg: 'Marks Entered!'
+                                }
+                                res.send(output)
                             }
                             else{
-                                res.send('result not added')
+                                output = {
+                                    msg: 'result not added'
+                                }
+                                res.send(output)
                             }
                         }
                         connection.release()
