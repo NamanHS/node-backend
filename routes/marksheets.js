@@ -36,11 +36,14 @@ router.get('/student/:studentId',(req,res)=>{
                                 let totalMarks = 0;
                                 let percentage = 0;
                                 let grade;
-                                for(let elem of result.marks){
-                                    totalMarks += elem.marks
-                                    totalMaxMarks += elem.maxMarks           
+                                
+                                let marks = JSON.parse(result[0].marks)
+                                for(let elem of marks){
+                                    console.log(elem)
+                                    totalMarks = totalMarks + parseInt(elem.marks)
+                                    totalMaxMarks = totalMaxMarks + parseInt(elem.maxMarks)           
                                 }
-                                percentage = (totalMarks/totalMaxMarks)*100
+                                percentage = Math.round((totalMarks/totalMaxMarks)*100)
                                 if(percentage>=90) grade = 'A+'
                                 else if(percentage>=80 && percentage<=89) grade = 'A'
                                 else if(percentage>=75 && percentage<=79) grade = 'B+'
@@ -53,10 +56,10 @@ router.get('/student/:studentId',(req,res)=>{
                                 else grade = 'F'
                                 
 
-                                result.totalMarks = totalMarks;
-                                result.totalMaxMarks = totalMaxMarks;
-                                result.percentage = percentage
-                                result.grade = grade
+                                result[0].totalMarks = totalMarks;
+                                result[0].totalMaxMarks = totalMaxMarks;
+                                result[0].percentage = percentage
+                                result[0].grade = grade
 
                                 res.send(result)
                             }
