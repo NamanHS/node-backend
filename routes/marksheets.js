@@ -122,7 +122,44 @@ router.get('/class/:classId',(req,res)=>{
                         else{
                             if(result.length > 0)
                             {
-                                res.send(result)
+                                result.forEach(result=>{
+
+                                    let totalMaxMarks = 0;
+                                    let totalMarks = 0;
+                                    let percentage = 0;
+                                    let grade;
+                                    let status = 'PASS';
+                                    
+                                    let marks = JSON.parse(result.marks)
+                                    for(let elem of marks){
+                                        console.log(elem)
+                                        totalMarks = totalMarks + parseInt(elem.marks)
+                                        totalMaxMarks = totalMaxMarks + parseInt(elem.maxMarks)           
+                                    }
+                                    percentage = Math.round((totalMarks/totalMaxMarks)*100)
+                                    if(percentage>=90) grade = 'A+'
+                                    else if(percentage>=80 && percentage<=89) grade = 'A'
+                                    else if(percentage>=75 && percentage<=79) grade = 'B+'
+                                    else if(percentage>=70 && percentage<=74) grade = 'B'
+                                    else if(percentage>=65 && percentage<=69) grade = 'C+'
+                                    else if(percentage>=60 && percentage<=64) grade = 'C'
+                                    else if(percentage>=55 && percentage<=59) grade = 'D+'
+                                    else if(percentage>=50 && percentage<=54) grade = 'D'
+                                    else if(percentage>=40 && percentage<=49) grade = 'E'
+                                    else {
+                                        grade = 'F'
+                                        status = 'FAIL'
+                                    }
+                                    
+                                    result.totalMarks = totalMarks;
+                                    result.totalMaxMarks = totalMaxMarks;
+                                    result.percentage = percentage;
+                                    result.grade = grade;
+                                    result.status = status;
+                                })
+                                    
+                                    res.send(result)
+                                
                             }
                             else{
                                 output = {
