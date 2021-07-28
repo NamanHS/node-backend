@@ -36,6 +36,7 @@ router.get('/student/:studentId',(req,res)=>{
                                 let totalMarks = 0;
                                 let percentage = 0;
                                 let grade;
+                                let status = 'PASS';
                                 
                                 let marks = JSON.parse(result[0].marks)
                                 for(let elem of marks){
@@ -53,13 +54,16 @@ router.get('/student/:studentId',(req,res)=>{
                                 else if(percentage>=55 && percentage<=59) grade = 'D+'
                                 else if(percentage>=50 && percentage<=54) grade = 'D'
                                 else if(percentage>=40 && percentage<=49) grade = 'E'
-                                else grade = 'F'
-                                
+                                else {
+                                    grade = 'F'
+                                    status = 'FAIL'
+                                }
 
                                 result[0].totalMarks = totalMarks;
                                 result[0].totalMaxMarks = totalMaxMarks;
-                                result[0].percentage = percentage
-                                result[0].grade = grade
+                                result[0].percentage = percentage;
+                                result[0].grade = grade;
+                                result[0].status = status;
 
                                 res.send(result)
                             }
