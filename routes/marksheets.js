@@ -71,7 +71,7 @@ router.get('/student/:studentId',(req,res)=>{
                                 output = {
                                     msg: 'result not available'
                                 }
-                                res.send(output)
+                                res.status(404).send(output)
                             }
                         }
                         connection.release()
@@ -165,7 +165,7 @@ router.get('/class/:classId',(req,res)=>{
                                 output = {
                                     msg: 'result not available'
                                 }
-                                res.send(output)
+                                res.status(404).send(output)
                             }
                         }
                         connection.release()
